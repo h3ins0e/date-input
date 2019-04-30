@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<input type="text" id="dd">
+<br/>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        var charCode = '/';
+        var nullCode = '_';
+        var inputShadow = [null, null, charCode, null, null, charCode, null, null, null, null];
+        var inputBox = document.getElementById('dd');
+        inputShadow.map(function(char){
+            if(char === null){
+                inputBox.value += nullCode ;
+            }else{
+                inputBox.value += charCode ;
+            }
+        });
+
+        inputBox.onclick = function(e){
+            inputBox.selectionStart = 0 ;
+            inputBox.selectionEnd = 0 ;
+            inputBox.onclick = null ;
+        }
+
+        inputBox.onkeydown = function(e){
+            onKeyPress(e, inputBox);
+        }
+
+        function onKeyPress(e, box){
+            if(new RegExp(/^\d+$/).test(e.key)){
+                // go to digit check fun
+                checkDigit(e, box.selectionStart);
+                console.log(box.selectionStart);
+            }else if(e.key === 'Backspace'){
+                // go to subtract digit fun 
+                subDigit(e, box);
+            }else if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab' && e.key !== 'F5'){
+                e.preventDefault();
+            }
+        }
+
+        function checkDigit(e, index){
+            if(inputShadow[index] === null || inputShadow[index] === charCode){
+                // check whole inputbox
+                if(index === 0 && parseInt(e.key) < 4){
+                    //go day validation fun
+                }else if(index === 1){
+                    if(inputShadow[0] < 3){
+                        // go day validation fun
+                    }else if(inputShadow[0] === 3 && parseInt(e.key) < 2){
+                        // go day validation fun
+                    }
+                }else if(index === 2){
+
+                }else if(index === 3){
+                    
+                }else if(index === 4){
+                    
+                }else if(index === 5){
+                    
+                }else if(index === 6){
+                    
+                }else if(index === 7){
+                    
+                }else if(index === 8){
+                    
+                }else if(index === 9){
+                    
+                }
+            }
+        }
+
+        function subDigit(e, box){
+            console.log('this is subDigit');
+        }
+    });
+</script>
+</body>
+</html>
