@@ -9,77 +9,200 @@
 <br/>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function(){
         var charCode = '/';
         var nullCode = '_';
+        var monthsList = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
         var inputShadow = [null, null, charCode, null, null, charCode, null, null, null, null];
         var inputBox = document.getElementById('dd');
-        inputShadow.map(function(char){
-            if(char === null){
-                inputBox.value += nullCode ;
-            }else{
-                inputBox.value += charCode ;
+        // inputShadow.map(function(char){
+        //     if(char === null){
+        //         inputBox.value += nullCode ;
+        //     }else{
+        //         inputBox.value += charCode ;
+        //     }
+        // });
+
+        // document.addEventListener('DOMContentLoaded', function(e){
+        //     _event();
+        //     _init();
+        // });
+        _event();
+        _init();
+        function _event(){
+            inputBox.onclick = function(e){
+                inputBox.selectionStart = 0 ;
+                inputBox.selectionEnd = 0 ;
+                inputBox.onclick = null ;
             }
-        });
 
-        inputBox.onclick = function(e){
-            inputBox.selectionStart = 0 ;
-            inputBox.selectionEnd = 0 ;
-            inputBox.onclick = null ;
+            inputBox.onkeydown = function(e){
+                onKeyPress(e);
+            }
         }
 
-        inputBox.onkeydown = function(e){
-            onKeyPress(e, inputBox);
-        }
-
-        function onKeyPress(e, box){
+        function onKeyPress(e){
             if(new RegExp(/^\d+$/).test(e.key)){
                 // go to digit check fun
-                checkDigit(e, box.selectionStart);
-                console.log(box.selectionStart);
+                checkDigit(e, inputBox.selectionStart);
+                e.preventDefault();
             }else if(e.key === 'Backspace'){
                 // go to subtract digit fun 
-                subDigit(e, box);
+                subDigit(e, inputBox.selectionStart - 1);
+                e.preventDefault();
             }else if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab' && e.key !== 'F5'){
                 e.preventDefault();
             }
         }
 
         function checkDigit(e, index){
+            console.log("this is e : " + e.key , "this is index : " + index);
             if(inputShadow[index] === null || inputShadow[index] === charCode){
                 // check whole inputbox
                 if(index === 0 && parseInt(e.key) < 4){
-                    //go day validation fun
+                    //go day validation(e, index) fun
+                    console.log('zero and less than 4');
+                    _validation(e, index);
                 }else if(index === 1){
                     if(inputShadow[0] < 3){
                         // go day validation fun
+                        _validation(e, index);
                     }else if(inputShadow[0] === 3 && parseInt(e.key) < 2){
                         // go day validation fun
+                        _validation(e, index);
                     }
                 }else if(index === 2){
-
+                    inputBox.selectionStart = index + 1 ;
+                    inputBox.selectionEnd = index + 1 ;
+                    checkDigit(e , inputBox.selectionStart);
                 }else if(index === 3){
-                    
+                    //validator(e, index);
+                    _validation(e, index);
                 }else if(index === 4){
-                    
+                    if(inputShadow[3] > 0 && parseInt(e.key) < 3){
+                        _validation(e, index);
+                    }else if(inputShadow[3] === 0){
+                        _validation(e, index);
+                    }
                 }else if(index === 5){
-                    
+                    inputBox.selectionStart = index + 1 ;
+                    inputBox.selectionEnd = index + 1 ;
+                    checkDigit(e, inputBox.selectionStart);
                 }else if(index === 6){
-                    
+                    _validation(e, index);
                 }else if(index === 7){
-                    
+                    _validation(e, index);
                 }else if(index === 8){
-                    
+                    _validation(e, index);
                 }else if(index === 9){
-                    
+                    _validation(e, index);
                 }
             }
         }
 
-        function subDigit(e, box){
-            console.log('this is subDigit');
+        function subDigit(e, index){
+            if(index >= 0 && inputShadow[index] !== charCode){
+                inputShadow[index] = null ;
+                _init(index);
+            }else if (inputShadow[index] === charCode){
+                subDigit(index - 1);
+            }
         }
-    });
+
+        function getCurrentBlock(index){
+            if(index >= 0 && index < 3){
+                return 'day';
+            }else if(index >= 3 && index < 5){
+                return 'month';
+            }else if(index >= 5){
+                return 'year';
+            }
+        }
+
+        function _init(index){
+            inputBox.value = null ;
+            // inputShadow.map(function(char){
+            //     if(char === null){
+            //         inputBox.value += nullCode ;
+            //     }else{
+            //         inputBox.value += charCode ;
+            //     }
+            // });
+            inputShadow.map(char => char === null ? inputBox.value += nullCode : inputBox.value += charCode);
+            inputBox.selectionStart = index ;
+            inputBox.selectionEnd = index ;
+        }
+
+        function _validation(key, index){
+            inputShadow[index] = parseInt(key.key);
+            var currentBlock = getCurrentBlock(index);
+            var dd, mm, yy = null ;
+            if(inputShadow[0] !== null && inputShadow[1] !== null){
+                dd = inputShadow[0] * 10 + inputShadow[1] ;
+            }
+            if(inputShadow[3] !== null && inputShadow[4] !== null){
+                mm = inputShadow[3] * 10 + inputShadow[4];
+            }
+            if(inputShadow[6] !== null && inputShadow[7] !== null && inputShadow[8] !== null && inputShadow[9] !== null){
+                yy = parseInt(inputShadow.slice(6, 10).join(''));
+            }
+
+            if(currentBlock === 'day'){
+                console.log(currentBlock);
+                if(dd){
+                    console.log(index);
+                    if(dd === 29 && mm == 2){
+                        if(yy && yy % 4 === 0){
+                            _init(index + 1);
+                        }else if(!yy){
+                            _init(index + 1);
+                        }else{
+                            inputShadow[index] = null ;
+                        }
+                    }else if(mm && dd <= monthsList[mm - 1]){
+                        _init(index + 1) ;
+                    }else if(mm && dd > monthsList[mm - 1]){
+                        inputShadow[index] = null ;
+                    }else{
+                        _init(index + 1);
+                    }
+                }else{
+                    // _init(index + 1);
+                }
+            }else if(currentBlock === 'month'){
+                // if(mm){
+                //     if(dd === 29 && mm == 2){
+                //         if(yy && yy % 4 === 0){
+                //             _init(index + 1);
+                //         }else if(!yy){
+                //             _init(index + 1);
+                //         }else{
+                //             inputShadow[index] = null ;
+                //         }
+                //     }else if(dd && dd <= monthsList[mm - 1]){
+                //         _init(index + 1);
+                //     }else if(dd && dd > monthsList[mm - 1]){
+                //         inputShadow[index] = null ;
+                //     }else{
+                //         _init(index + 1);
+                //     }
+                // }else{
+                //     _init(index + 1);
+                // }
+            }else if(currentBlock === 'year'){
+                // if(yy){
+                //     if(dd === 29 && mm === 2 && yy % 4 === 0){
+                //         _init(index + 1);
+                //     }else if(dd === 29 && mm === 2 && yy % 4 !== 0){
+                //         inputShadow[index] = null ;
+                //     }else{
+                //         _init(index + 1);
+                //     }
+                // }else{
+                //     _init(index + 1);
+                // }
+            }
+        }
+    //});
 </script>
 </body>
 </html>
